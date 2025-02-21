@@ -17,7 +17,7 @@ func AddProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	product.ID = CurrentID
-	ProductList[CurrentID] = product // TODO: check is valid product
+	ProductList[CurrentID] = product
 	addedProductJson, err := json.Marshal(product)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

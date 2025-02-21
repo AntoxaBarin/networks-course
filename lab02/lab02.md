@@ -62,7 +62,31 @@
 запросы и ответы со стороны сервиса для **всех** его операций.
 
 #### Демонстрация работы
-todo
+## 1. `POST` /product
+![](images/post_product.png)
+
+## 2. `GET` /product/{product_id}
+![](images/get_product.png)
+
+## 3. `PUT` /product/{product_id}
+![](images/put_product.png)
+
+## 4. `DELETE` /product/{product_id}
+![](images/delete_product.png)
+
+### Проверим, что продукта с ID = 1 больше нет.
+![](images/delete_check_product.png)
+
+## 5. `GET` /products
+### Для начала добавим два продукта
+![](images/get_products_post1.png)
+![](images/get_products_post2.png)
+### Теперь запросим весь список
+![](images/get_products.png)
+### Напоследок удалим ненужный апельсин
+![](images/delete_orange.png)
+### Проверим, что книга осталась на месте
+![](images/get_book.png)
 
 ### Задание В (4 балла)
 Пусть ваш продукт также имеет иконку (небольшую картинку). Формат иконки (картинки) может
