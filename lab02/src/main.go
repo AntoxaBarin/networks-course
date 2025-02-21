@@ -24,6 +24,8 @@ func main() {
 		r.Get("/{product_id}", GetProductByID)
 		r.Put("/{product_id}", UpdateProductByID)
 		r.Delete("/{product_id}", DeleteProductByID)
+		r.Get("/{product_id}/image", GetImageHandler)
+		r.Post("/{product_id}/image", PostImageHandler)
 	})
 	r.Post("/product", AddProduct)
 	r.Get("/products", GetAllProducts)

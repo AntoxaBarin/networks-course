@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -122,4 +124,71 @@ func GetAllProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(resultJson)
+}
+
+func GetImageHandler(w http.ResponseWriter, r *http.Request) {
+	productID := chi.URLParam(r, "product_id")
+	id, err := strconv.Atoi(productID)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	product, ok := ProductList[uint64(id)]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	imagePath := product.Icon
+	w.Header().Set("Content-Type", "image/png")
+	http.ServeFile(w, r, imagePath)
+}
+
+func PostImageHandler(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	productID := chi.URLParam(r, "product_id")
+	id, err := strconv.Atoi(productID)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	product, ok := ProductList[uint64(id)]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	file, _, err := r.FormFile("icon")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	defer file.Close()
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	imagePath := "../assets/" + string(productID) + ".png"
+	err = os.WriteFile(imagePath, fileBytes, 0644)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	product.Icon = imagePath
+	ProductList[uint64(id)] = product
+	w.WriteHeader(http.StatusOK)
 }
