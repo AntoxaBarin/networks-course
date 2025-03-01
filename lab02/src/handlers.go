@@ -10,6 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+const ASSETS_PATH = "../assets/"
+
 func AddProduct(w http.ResponseWriter, r *http.Request) {
 	var product Product
 	err := json.NewDecoder(r.Body).Decode(&product)
@@ -139,9 +141,9 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	imagePath := product.Icon
+	filename := product.Icon
 	w.Header().Set("Content-Type", "image/png")
-	http.ServeFile(w, r, imagePath)
+	http.ServeFile(w, r, ASSETS_PATH+filename)
 }
 
 func PostImageHandler(w http.ResponseWriter, r *http.Request) {
@@ -165,7 +167,7 @@ func PostImageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, _, err := r.FormFile("icon")
+	file, handler, err := r.FormFile("icon")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -180,15 +182,15 @@ func PostImageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imagePath := "../assets/" + string(productID) + ".png"
-	err = os.WriteFile(imagePath, fileBytes, 0644)
+	filename := string(productID) + "_" + handler.Filename
+	err = os.WriteFile(ASSETS_PATH+filename, fileBytes, 0644)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	product.Icon = imagePath
+	product.Icon = filename
 	ProductList[uint64(id)] = product
 	w.WriteHeader(http.StatusOK)
 }

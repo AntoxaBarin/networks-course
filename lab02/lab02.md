@@ -109,13 +109,13 @@
 
 #### Демонстрация работы
 ## 1. Добавим продукт
-![](images/image_add_product.png)
+![](images/image_add_product_.png)
 ## 2. Добавим продукту картинку
-![](images/image_post.png)
-## 3. Проверим, что продукт хранит путь до картинки
-![](images/image_get_product.png)
+![](images/image_post_.png)
+## 3. Проверим, что продукт хранит информацию о картинке
+![](images/image_get_product_.png)
 ## 4. Запросим картинку у сервера
-![](images/image_get.png)
+![](images/image_get_.png)
 
 ---
 
