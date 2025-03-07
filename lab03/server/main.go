@@ -51,6 +51,8 @@ func main() {
 		} else if *taskFlag == "B" {
 			go handleRequest(conn)
 		} else if *taskFlag == "D" {
+
+			// Channel size is concurrency level
 			routines <- struct{}{}
 
 			go func(conn net.Conn) {
