@@ -15,3 +15,15 @@ go build .
 ./server <server-port>           # single-thread
 ./server <server-port> -task=B   # multi-thread 
 ```
+
+## Сборка клиента
+
+```bash
+cd client
+go build .
+```
+
+## Запуск клиента
+```bash
+./client <server-host> <server-port> <filename>
+```
