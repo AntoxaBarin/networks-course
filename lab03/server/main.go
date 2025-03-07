@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -18,11 +19,16 @@ const (
 
 func main() {
 	var taskFlag = flag.String("task", "A", "Task")
-
 	PORT := os.Args[1]
 	if PORT[0] != ':' {
 		PORT = ":" + PORT
 	}
+	concurrencyLevel, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		fmt.Println("Incorrect Concurrency level.")
+		os.Exit(1)
+	}
+	routines := make(chan struct{}, concurrencyLevel)
 
 	listener, err := net.Listen("tcp", PORT)
 	if err != nil {
@@ -39,10 +45,21 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println("Connected with", conn.RemoteAddr().String())
+
 		if *taskFlag == "A" {
 			handleRequest(conn)
 		} else if *taskFlag == "B" {
 			go handleRequest(conn)
+		} else if *taskFlag == "D" {
+			routines <- struct{}{}
+
+			go func(conn net.Conn) {
+				defer func() {
+					<-routines
+					conn.Close()
+				}()
+				handleRequest(conn)
+			}(conn)
 		}
 
 	}

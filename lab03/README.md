@@ -12,8 +12,9 @@ go build .
 ## Запуск сервера
 
 ```bash
-./server <server-port>           # single-thread
-./server <server-port> -task=B   # multi-thread 
+./server <server-port>                             # single-thread
+./server <server-port> -task=B                     # not limited multi-thread 
+./server <server-port> <concurrency-level> -task=D # limited multi-thread 
 ```
 
 ## Сборка клиента
