@@ -68,11 +68,15 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[INFO]: Response from %s: %s", targetURL, resp.Status)
 	defer resp.Body.Close()
 
-	for key, values := range resp.Header {
-		for _, value := range values {
-			w.Header().Add(key, value)
+	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
+		for key, values := range resp.Header {
+			for _, value := range values {
+				w.Header().Add(key, value)
+			}
 		}
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+		return
 	}
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
 }

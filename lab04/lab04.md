@@ -34,10 +34,25 @@ _(*) Вы должны заменить стоящий здесь 8888 на но
 #### Демонстрация работы
 1. Содержимое журнала после отправки двух запросов:
 ```
-2025/03/11 22:45:43 [INFO]: Forward request to math-cs.spbu.ru
-2025/03/11 22:45:44 [INFO]: Response code 200 OK
-2025/03/11 22:45:48 [INFO]: Forward request to www.google.com
-2025/03/11 22:45:48 [INFO]: Response code 200 OK
+2025/03/11 23:10:40 [INFO]: Forward request to math-cs.spbu.ru
+2025/03/11 23:10:41 [INFO]: Response from http://math-cs.spbu.ru: 200 OK
+2025/03/11 23:10:53 [INFO]: Forward request to google.com
+2025/03/11 23:10:53 [INFO]: Response from http://google.com: 200 OK
+```
+
+2. Пример запроса к несуществующей странице:
+```bash
+$ curl -i -X GET 127.0.0.1:8080/ya.ru/prikol
+
+HTTP/1.1 404 Not Found
+Date: Tue, 11 Mar 2025 20:11:02 GMT
+Content-Length: 0
+```
+
+Запись в журнале:
+```
+2025/03/11 23:11:02 [INFO]: Forward request to ya.ru/prikol
+2025/03/11 23:11:02 [INFO]: Response from http://ya.ru/prikol: 404 Not Found
 ```
 
 ### Б. Прокси-сервер с кешированием (4 балла)
