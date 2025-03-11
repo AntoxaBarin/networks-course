@@ -77,7 +77,19 @@ Content-Length: 0
 Приложите скрины или логи, из которых понятно, что ответ на повторный запрос был взят из кэша.
 
 #### Демонстрация работы
-todo
+Записи журнала:
+
+```
+2025/03/12 02:10:08 [INFO]: Forward request to ya.ru
+2025/03/12 02:10:08 [INFO]: Searching for http://ya.ru in cache...
+2025/03/12 02:10:08 [INFO]: Cache miss for http://ya.ru. Sending request to http://ya.ru.
+2025/03/12 02:10:08 [INFO]: Response from http://ya.ru: 200 Ok
+
+2025/03/12 02:10:18 [INFO]: Forward request to ya.ru
+2025/03/12 02:10:18 [INFO]: Searching for http://ya.ru in cache...
+2025/03/12 02:10:18 [INFO]: Cache hit for http://ya.ru.
+2025/03/12 02:10:18 [INFO]: Cache for http://ya.ru is expired, updating...
+```
 
 ### В. Черный список (2 балла)
 Прокси-сервер отслеживает страницы и не пускает на те, которые попадают в черный список. Вместо

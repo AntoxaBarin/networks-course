@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -54,19 +55,19 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[INFO]: Cache hit for %s.\n", targetURL)
 
 		lm, _ := cache.GetRespMetadata(targetURL)
-		resp := condGET(lm, targetURL)
+		resp, respStatusCode := condGET(lm, targetURL)
 		if resp == nil {
 			log.Printf("[INFO]: Cache for %s is valid.\n", targetURL)
 			cache.ReadCachedResponse(targetURL, w)
 			return
 		} else {
 			log.Printf("[INFO]: Cache for %s is expired, updating...\n", targetURL)
-			w.WriteHeader(resp.StatusCode)
-			io.Copy(w, resp.Body)
+			w.WriteHeader(respStatusCode)
+			io.Copy(w, bytes.NewReader(resp))
 			return
 		}
 	}
-	log.Printf("[INFO]: Cache miss for %s.\nSending request to %s.\n", targetURL, targetURL)
+	log.Printf("[INFO]: Cache miss for %s. Sending request to %s.\n", targetURL, targetURL)
 
 	parsedURL, err := url.Parse(targetURL)
 	if err != nil {
@@ -90,6 +91,11 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[INFO]: Response from %s: %s", targetURL, resp.Status)
 	defer resp.Body.Close()
 
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Failed to read response body: %v", err)
+	}
+
 	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
 		for key, values := range resp.Header {
 			for _, value := range values {
@@ -97,15 +103,15 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		w.WriteHeader(resp.StatusCode)
-		io.Copy(w, resp.Body)
-		cache.SaveResponse(targetURL, resp)
+		io.Copy(w, bytes.NewReader(respBody))
+		cache.SaveResponse(targetURL, resp.Header.Get("Last-Modified"), resp.Header.Get("ETag"), bytes.NewReader(respBody))
 		return
 	}
 	w.WriteHeader(resp.StatusCode)
-	cache.SaveResponse(targetURL, resp)
+	cache.SaveResponse(targetURL, resp.Header.Get("Last-Modified"), resp.Header.Get("ETag"), bytes.NewReader(respBody))
 }
 
-func condGET(lm, url string) *http.Response {
+func condGET(lm, url string) ([]byte, int) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("Failed to create request: %v", err)
@@ -120,16 +126,21 @@ func condGET(lm, url string) *http.Response {
 	}
 	defer resp.Body.Close()
 
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Failed to read response body: %v", err)
+	}
+
 	switch resp.StatusCode {
 	case http.StatusNotModified:
 		fmt.Println("Resource has not been modified. Cache is valid.")
-		return nil
+		return nil, 0
 	case http.StatusOK:
 		fmt.Println("Resource has been modified. Updating cache...")
-		cache.SaveResponse(url, resp)
-		return resp
+		cache.SaveResponse(url, resp.Header.Get("Last-Modified"), resp.Header.Get("ETag"), bytes.NewReader(respBody))
+		return respBody, resp.StatusCode
 	default:
 		fmt.Printf("Unexpected status code: %d\n", resp.StatusCode)
-		return nil
+		return nil, 0
 	}
 }

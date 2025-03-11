@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	CACHE_CONFIG_PATH = "../cache/config"
-	CACHE_PATH        = "../cache/"
+	CACHE_CONFIG_PATH = "./../cache/config"
+	CACHE_PATH        = "./../cache/"
 )
 
 type RespMetadata struct {
@@ -65,33 +65,36 @@ func (c *Cache) ReadCachedResponse(path string, w http.ResponseWriter) {
 	io.Copy(w, file)
 }
 
-func (c *Cache) SaveResponse(path string, resp *http.Response) {
+func (c *Cache) SaveResponse(path, lm, etag string, respBody io.Reader) {
 	targetURL := path
+
+	path = strings.TrimPrefix(path, "http://")
+	path = strings.TrimPrefix(path, "https://")
 	path = strings.ReplaceAll(path, ".", "_")
 	path = strings.ReplaceAll(path, "-", "_")
 	path += "_cache.txt"
 
-	file, err := os.Create(path)
+	file, err := os.Create(CACHE_PATH + path)
 	if err != nil {
 		log.Printf("Failed to create cache file: %v", err)
 	}
 	defer file.Close()
 
-	_, err = io.Copy(file, resp.Body)
+	_, err = io.Copy(file, respBody)
 	if err != nil {
 		log.Printf("Failed to write to cache file: %v", err)
 	}
-	respMetadata := RespMetadata{Filename: path, LastMod: resp.Header.Get("Last-Modified"), ETag: resp.Header.Get("ETag")}
+	respMetadata := RespMetadata{Filename: path, LastMod: lm, ETag: etag}
 	c.cache[targetURL] = &respMetadata
 
-	config, err := os.OpenFile(CACHE_CONFIG_PATH, os.O_APPEND, 0666)
+	config, err := os.OpenFile(CACHE_CONFIG_PATH, os.O_APPEND|os.O_WRONLY, 0666)
 	if err != nil {
 		fmt.Println("Failed to open cache config")
 		return
 	}
 	defer config.Close()
-	if _, err := config.Write([]byte(respMetadata.Filename + " " + respMetadata.LastMod + " " + respMetadata.ETag + "\n")); err != nil {
-		config.Close()
+	if _, err := config.Write([]byte(targetURL + " " + respMetadata.Filename + " " + respMetadata.LastMod + " " + respMetadata.ETag + "\n")); err != nil {
+		fmt.Println("Failed to write to cache config")
 		log.Fatal(err)
 	}
 }
