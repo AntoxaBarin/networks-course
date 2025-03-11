@@ -23,8 +23,8 @@ func main() {
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Failed to handle non-GET request", http.StatusBadRequest)
+	if r.Method != "GET" && r.Method != "POST" {
+		http.Error(w, "Bad HTTP method: only GET and POST available", http.StatusBadRequest)
 		return
 	}
 	targetURL := strings.TrimPrefix(r.URL.Path, "/")

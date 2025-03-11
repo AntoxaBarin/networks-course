@@ -4,3 +4,5 @@
 2025/03/11 23:10:53 [INFO]: Response from http://google.com: 200 OK
 2025/03/11 23:11:02 [INFO]: Forward request to ya.ru/prikol
 2025/03/11 23:11:02 [INFO]: Response from http://ya.ru/prikol: 404 Not Found
+2025/03/11 23:22:37 [INFO]: Forward request to ya.ru
+2025/03/11 23:22:38 [INFO]: Response from http://ya.ru: 200 OK
