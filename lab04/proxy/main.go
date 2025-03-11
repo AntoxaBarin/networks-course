@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -12,11 +13,13 @@ import (
 )
 
 const (
-	PORT     = ":8080"
-	LOG_PATH = "proxy.log"
+	PORT           = ":8080"
+	LOG_PATH       = "proxy.log"
+	BLACKLIST_PATH = "black_list"
 )
 
 var cache = InitCache()
+var blackList = loadBlackList()
 
 func main() {
 	http.HandleFunc("/", handleRequest)
@@ -48,6 +51,11 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	if !strings.HasPrefix(targetURL, "http://") && !strings.HasPrefix(targetURL, "https://") {
 		targetURL = "http://" + targetURL
+	}
+	if isBlacklisted(targetURL) {
+		log.Printf("[INFO]: Forbidden target URL: %s", targetURL)
+		http.Error(w, "URL from Black list", http.StatusForbidden)
+		return
 	}
 
 	log.Printf("[INFO]: Searching for %s in cache...\n", targetURL)
@@ -143,4 +151,31 @@ func condGET(lm, url string) ([]byte, int) {
 		fmt.Printf("Unexpected status code: %d\n", resp.StatusCode)
 		return nil, 0
 	}
+}
+
+func isBlacklisted(host string) bool {
+	for i := range blackList {
+		if blackList[i] == host {
+			return true
+		}
+	}
+	return false
+}
+
+func loadBlackList() []string {
+	bl := make([]string, 0)
+
+	config, err := os.Open(BLACKLIST_PATH)
+	if err != nil {
+		fmt.Println("Failed to create cache config")
+		return nil
+	}
+	defer config.Close()
+
+	scanner := bufio.NewScanner(config)
+
+	for scanner.Scan() {
+		bl = append(bl, scanner.Text())
+	}
+	return bl
 }

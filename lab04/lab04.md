@@ -99,7 +99,24 @@ Content-Length: 0
 Приложите скрины или логи запроса из черного списка.
 
 #### Демонстрация работы
-todo
+```bash
+$ curl -i -X GET 127.0.0.1:8080/go-chi.io
+
+HTTP/1.1 403 Forbidden
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+Date: Tue, 11 Mar 2025 23:31:15 GMT
+Content-Length: 20
+
+URL from Black list
+```
+
+Запись в журнале:
+
+```
+2025/03/12 02:31:15 [INFO]: Forward request to go-chi.io
+2025/03/12 02:31:15 [INFO]: Forbidden target URL: http://go-chi.io
+```
 
 ## Wireshark. Работа с DNS
 Для каждого задания в этой секции приложите скрин с подтверждением ваших ответов.
