@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -13,6 +14,8 @@ const (
 	PORT     = ":8080"
 	LOG_PATH = "proxy.log"
 )
+
+var cache = InitCache()
 
 func main() {
 	http.HandleFunc("/", handleRequest)
@@ -46,6 +49,25 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		targetURL = "http://" + targetURL
 	}
 
+	log.Printf("[INFO]: Searching for %s in cache...\n", targetURL)
+	if cache.Contains(targetURL) {
+		log.Printf("[INFO]: Cache hit for %s.\n", targetURL)
+
+		lm, _ := cache.GetRespMetadata(targetURL)
+		resp := condGET(lm, targetURL)
+		if resp == nil {
+			log.Printf("[INFO]: Cache for %s is valid.\n", targetURL)
+			cache.ReadCachedResponse(targetURL, w)
+			return
+		} else {
+			log.Printf("[INFO]: Cache for %s is expired, updating...\n", targetURL)
+			w.WriteHeader(resp.StatusCode)
+			io.Copy(w, resp.Body)
+			return
+		}
+	}
+	log.Printf("[INFO]: Cache miss for %s.\nSending request to %s.\n", targetURL, targetURL)
+
 	parsedURL, err := url.Parse(targetURL)
 	if err != nil {
 		http.Error(w, "Invalid target URL", http.StatusBadRequest)
@@ -76,7 +98,38 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(resp.StatusCode)
 		io.Copy(w, resp.Body)
+		cache.SaveResponse(targetURL, resp)
 		return
 	}
 	w.WriteHeader(resp.StatusCode)
+	cache.SaveResponse(targetURL, resp)
+}
+
+func condGET(lm, url string) *http.Response {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatalf("Failed to create request: %v", err)
+	}
+
+	req.Header.Set("If-Modified-Since", lm)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("Failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusNotModified:
+		fmt.Println("Resource has not been modified. Cache is valid.")
+		return nil
+	case http.StatusOK:
+		fmt.Println("Resource has been modified. Updating cache...")
+		cache.SaveResponse(url, resp)
+		return resp
+	default:
+		fmt.Printf("Unexpected status code: %d\n", resp.StatusCode)
+		return nil
+	}
 }
