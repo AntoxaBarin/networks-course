@@ -72,6 +72,7 @@ func (c *Cache) SaveResponse(path, lm, etag string, respBody io.Reader) {
 	path = strings.TrimPrefix(path, "https://")
 	path = strings.ReplaceAll(path, ".", "_")
 	path = strings.ReplaceAll(path, "-", "_")
+	path = strings.ReplaceAll(path, "/", "_")
 	path += "_cache.txt"
 
 	file, err := os.Create(CACHE_PATH + path)

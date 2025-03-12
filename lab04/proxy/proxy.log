@@ -16,3 +16,19 @@
 2025/03/12 02:10:18 [INFO]: Cache for http://ya.ru is expired, updating...
 2025/03/12 02:31:15 [INFO]: Forward request to go-chi.io
 2025/03/12 02:31:15 [INFO]: Forbidden target URL: http://go-chi.io
+2025/03/12 10:38:17 [INFO]: Forward request to gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html
+2025/03/12 10:38:17 [INFO]: Searching for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html in cache...
+2025/03/12 10:38:17 [INFO]: Cache hit for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html.
+2025/03/12 10:38:18 [INFO]: Cache for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html is expired, updating...
+2025/03/12 10:38:20 [INFO]: Forward request to gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html
+2025/03/12 10:38:20 [INFO]: Searching for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html in cache...
+2025/03/12 10:38:20 [INFO]: Cache hit for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html.
+2025/03/12 10:38:20 [INFO]: Cache for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html is valid.
+2025/03/12 10:42:51 [INFO]: Forward request to gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html
+2025/03/12 10:42:51 [INFO]: Searching for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html in cache...
+2025/03/12 10:42:51 [INFO]: Cache miss for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html. Sending request to http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html.
+2025/03/12 10:42:52 [INFO]: Response from http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html: 200 OK
+2025/03/12 10:42:54 [INFO]: Forward request to gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html
+2025/03/12 10:42:54 [INFO]: Searching for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html in cache...
+2025/03/12 10:42:54 [INFO]: Cache hit for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html.
+2025/03/12 10:42:55 [INFO]: Cache for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html is valid.

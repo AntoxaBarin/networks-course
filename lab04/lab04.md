@@ -91,6 +91,44 @@ Content-Length: 0
 2025/03/12 02:10:18 [INFO]: Cache for http://ya.ru is expired, updating...
 ```
 
+Главная страница Яндекса использует HTTP/2 (вероятно, из-за gRPC), поля "Last-Modified" в ответе на GET запрос не наблюдается.
+Попробуем что-то попроще:
+
+```bash
+$ curl -i -X GET 127.0.0.1:8080/gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html
+
+HTTP/1.1 200 OK
+Date: Wed, 12 Mar 2025 07:38:20 GMT
+Content-Length: 371
+Content-Type: text/html; charset=utf-8
+
+<html>
+
+Congratulations again!  Now you've downloaded the file lab2-2.html. <br>
+This file's last modification date will not change.  <p>
+Thus  if you download this multiple times on your browser, a complete copy <br>
+will only be sent once by the server due to the inclusion of the IN-MODIFIED-SINCE<br>
+field in your browser's HTTP GET request to the server.
+
+</html>
+```
+
+Запись журнала:
+
+```
+2025/03/12 10:42:51 [INFO]: Forward request to gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html
+2025/03/12 10:42:51 [INFO]: Searching for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html in cache...
+2025/03/12 10:42:51 [INFO]: Cache miss for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html. Sending request to http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html.
+2025/03/12 10:42:52 [INFO]: Response from http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html: 200 OK
+
+2025/03/12 10:42:54 [INFO]: Forward request to gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html
+2025/03/12 10:42:54 [INFO]: Searching for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html in cache...
+2025/03/12 10:42:54 [INFO]: Cache hit for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html.
+2025/03/12 10:42:55 [INFO]: Cache for http://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file2.html is valid.
+```
+
+Тело запроса хранится в соответствующем [файле](./cache/gaia_cs_umass_edu_wireshark_labs_HTTP_wireshark_file2_html_cache.txt), поле `Last-Modified` для этого документа находится в [конфиге кэша](./cache/config), который читается при старте прокси сервера и обновляется при выключении.
+
 ### В. Черный список (2 балла)
 Прокси-сервер отслеживает страницы и не пускает на те, которые попадают в черный список. Вместо
 этого прокси-сервер отправляет предупреждение, что страница заблокирована. Список доменов
