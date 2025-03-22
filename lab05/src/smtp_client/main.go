@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
 	"time"
 )
 
@@ -16,10 +17,12 @@ const (
 )
 
 var (
-	from     string
-	to       string
-	password string
-	msg      string
+	from       string
+	to         string
+	password   string
+	msg        string
+	imgPath    string
+	encodedImg string
 )
 
 func main() {
@@ -27,7 +30,17 @@ func main() {
 	flag.StringVar(&to, "to", from, "Recepient email")
 	flag.StringVar(&password, "pass", "strong_password", "Sender mail password")
 	flag.StringVar(&msg, "msg", "This is the email body.", "Email body")
+	flag.StringVar(&imgPath, "image", "", "Path to image file")
 	flag.Parse()
+
+	if imgPath != "" {
+		imgData, err := os.ReadFile(imgPath)
+		if err != nil {
+			fmt.Println("Failed to read image file:", err)
+			return
+		}
+		encodedImg = base64.StdEncoding.EncodeToString(imgData)
+	}
 
 	conn, err := net.Dial("tcp", smtpServer+":"+port)
 	if err != nil {
@@ -63,8 +76,32 @@ func main() {
 
 	sendMsg(w, tlsConn, fmt.Sprintf("MAIL FROM:<%s>\r\n", from))
 	sendMsg(w, tlsConn, fmt.Sprintf("RCPT TO:<%s>\r\n", to))
-	sendMsg(w, tlsConn, "DATA\n")
-	message := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: Test email\r\n\r\n%s\r\n.\r\n", from, to, msg)
+	sendMsg(w, tlsConn, "DATA\r\n")
+
+	boundary := "my-boundary-12345"
+	message := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: Test email with image\r\n", from, to)
+	message += "MIME-Version: 1.0\r\n"
+	message += fmt.Sprintf("Content-Type: multipart/mixed; boundary=\"%s\"\r\n", boundary)
+	message += "\r\n"
+
+	message += fmt.Sprintf("--%s\r\n", boundary)
+	message += "Content-Type: text/plain; charset=\"UTF-8\"\r\n"
+	message += "\r\n"
+	message += msg + "\r\n"
+	message += "\r\n"
+
+	if encodedImg != "" {
+		message += fmt.Sprintf("--%s\r\n", boundary)
+		message += "Content-Type: image/png\r\n"
+		message += "Content-Transfer-Encoding: base64\r\n"
+		message += "Content-Disposition: attachment; filename=\"image\"\r\n"
+		message += "\r\n"
+		message += encodedImg + "\r\n"
+		message += "\r\n"
+	}
+	message += fmt.Sprintf("--%s--\r\n", boundary)
+	message += ".\r\n"
+
 	sendMsg(w, tlsConn, message)
 	sendMsg(w, tlsConn, "QUIT\r\n")
 }
