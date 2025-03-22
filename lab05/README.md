@@ -2,7 +2,9 @@
 
 ## Программирование сокетов.
 
-Программа для задачи 1 написана на Go + [gomail](https://github.com/go-gomail/gomail).
+Программы для задачи A написана на Go.
+
+В задаче 1 используется [gomail](https://github.com/go-gomail/gomail).
 
 ### Сборка и запуск задания 1
 
