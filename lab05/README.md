@@ -10,5 +10,5 @@
 cd src
 go mod tidy
 go build .
-./smtp --from <from email> --to <recepient email> --pass <sender email password> --type <html | text>
+./smtp --from <sender email> --to <recepient email> --pass <sender email password> --type <html | text>
 ```
