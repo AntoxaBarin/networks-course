@@ -77,7 +77,36 @@
 Бонус: Не используйте готовые библиотеки для работы с FTP (например, ftplib для Python), а реализуйте решение на сокетах **(+3 балла)**.
 
 #### Демонстрация работы
-todo
+
+#### Список всех файлов и директорий
+- ![](./images/ftp_client_1.png)
+
+#### Отправка файла на сервер
+- ![](./images/ftp_client_2.png)
+
+#### Скачивание файла с сервера
+- ![](./images/ftp_client_3.png)
+
+Содержимое файла src/file1111:
+
+```
+{
+	"time": 1743080400000,
+	"sn": "2204LH021",
+	"Rain": 0,
+	"Battery": 3.3,
+	"DewPoint": 282.34,
+	"Humidity": 39.2,
+	"Pressure": 98905,
+	"Irradiation": 0,
+	"Irradiation max": 0,
+	"Temperature": 297.05,
+	"Temperature max": 297.05,
+	"Temperature min": 297.05,
+	"Rainfall_rate_max": null,
+	"Temperature_wetbulb_stull2011_C": 15.36
+}
+```
 
 ### GUI FTP клиент (4 балла)
 Реализуйте приложение FTP клиента с графическим интерфейсом. НЕ используйте C#.
