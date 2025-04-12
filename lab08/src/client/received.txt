@@ -1,0 +1,6 @@
+A module unit is a translation unit that contains a module-declaration. A named module is the collection of module units with the same module-
+name. The identifiers module and import shall not appear as identifiers in a module-name or module-partition. All module-names either begin-
+ning with an identifier consisting of std followed by zero or more digits or containing a reserved identifier ([lex.name]) are reserved and shall not be 
+specified in a module-declaration; no diagnostic is required. If any identifier in a reserved module-name is a reserved identifier, the module name 
+is reserved for use by C++ implementations; otherwise it is reserved for future standardization. The optional attribute-specifier-seq appertains to the 
+module-declaration.
