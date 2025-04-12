@@ -1,0 +1,17 @@
+27.4.1 Iterator traits [iterator.traits]
+1 To implement algorithms only in terms of iterators, it is often necessary to determine the value and difference
+types that correspond to a particular iterator type. Accordingly, it is required that if Iterator is the type of
+an iterator, the types
+iterator_traits<Iterator>::difference_type
+iterator_traits<Iterator>::value_type
+iterator_traits<Iterator>::iterator_category
+be defined as the iterator’s difference type, value type and iterator category, respectively. In addition, the types
+iterator_traits<Iterator>::reference
+iterator_traits<Iterator>::pointer
+shall be defined as the iterator’s reference and pointer types, that is, for an iterator object a, the same type
+as the type of *a and a->, respectively. In the case of an output iterator, the types
+iterator_traits<Iterator>::difference_type
+iterator_traits<Iterator>::value_type
+iterator_traits<Iterator>::reference
+iterator_traits<Iterator>::pointer
+may be defined as void.
