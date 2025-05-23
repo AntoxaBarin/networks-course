@@ -1,5 +1,5 @@
 # RIP
-
+Программа написана на C++.
 Для сборки программы нужна библиотека `json`, можно поставить с помощью пакетного менеджера `Conan` ([install Conan](https://docs.conan.io/2/installation.html)):
 
 ```bash
