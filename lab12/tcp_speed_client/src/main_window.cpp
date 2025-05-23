@@ -41,7 +41,7 @@ MainWindow::MainWindow() : AWindow("TCP client", 600_dp, 400_dp) {
         Centered{
             _new<AButton>("Send")
             .connect(&AView::clicked, this, [this, ipTextArea, portTextArea, countTextArea] {
-                sendPackets(ipTextArea->getText(), portTextArea->getText().toInt().value(), countTextArea->getText().toInt().value());
+                sendPackets(ipTextArea->getText(), portTextArea->getText().toInt().value(), countTextArea->getText().toInt().value()); 
             }) with_style{FixedSize{160_dp, 40_dp}, FontSize{20_dp}}
         }
     }} with_style { BackgroundSolid {AColor::WHITE}} );
@@ -56,9 +56,17 @@ void MainWindow::sendPackets(const AString& ip, std::uint16_t port, std::uint32_
     
     for (auto i = 0; i < count; ++i) {
         std::vector<std::uint8_t> data(1024, 0);
-        for (auto& byte : data) {
-            byte = dist(rd);
+
+        // first 8 bytes for timestamp
+        for (int i = 9; i < 1024; ++i) {
+            data[i] = dist(rd);
         }
+        
+        std::uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+        std::memcpy(data.data(), &timestamp, sizeof(timestamp));
+        
         socket.write(reinterpret_cast<const char*>(data.data()), 1024);
         ALogger::info("Client") << "Packet #" << i << " sent";
     }
