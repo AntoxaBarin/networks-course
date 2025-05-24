@@ -51,23 +51,29 @@ void MainWindow::sendPackets(const AString& ip, std::uint16_t port, std::uint32_
     AInet4Address address(ip, port);
     ATcpSocket socket(address);
     
+    bool is_first_packet = true;
+
     std::random_device rd;
     std::uniform_int_distribution<uint8_t> dist(0, 255);
     
     for (auto i = 0; i < count; ++i) {
         std::vector<std::uint8_t> data(1024, 0);
 
-        // first 8 bytes for timestamp
-        for (int i = 9; i < 1024; ++i) {
+        for (int i = 0; i < 1024; ++i) {
             data[i] = dist(rd);
         }
         
-        std::uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()
-        ).count();
-        std::memcpy(data.data(), &timestamp, sizeof(timestamp));
+        // Set timestamp in the beginning of the first packet
+        if (is_first_packet) {
+            std::uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+            ).count();
+            std::memcpy(data.data(), &timestamp, sizeof(timestamp));
+            ALogger::info("TCP CLIENT") << "TIMESTAMP: " << timestamp;
+            is_first_packet = false;    
+        }
         
         socket.write(reinterpret_cast<const char*>(data.data()), 1024);
-        ALogger::info("Client") << "Packet #" << i << " sent";
+        ALogger::info("TCP CLIENT") << "Packet #" << i << " sent";
     }
 }
